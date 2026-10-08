@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>巷匠 · 手艺进社区 互助传温情</title>
+<style>
+/* ============================================================
+   巷匠小程序 —— 暖色「巷弄工匠」主题
+   手艺进社区 · 互助传温情
+   ============================================================ */
+:root{
+  --bg:#f4ede2;            /* 暖纸色背景 */
+  --card:#fffdf8;          /* 卡片 */
+  --primary:#c5683a;       /* 主色：陶土橙 */
+  --primary-2:#a8522c;     /* 深橙 */
+  --amber:#d99a3b;         /* 琥珀点缀 */
+  --green:#4d7c54;         /* 公益绿 */
+  --red:#c0503e;           /* 提示红 */
+  --ink:#3a2c22;           /* 正文墨色 */
+  --muted:#9a8878;         /* 次要文字 */
+  --line:#ecdfcc;          /* 分割线 */
+  --shadow:0 6px 22px rgba(120,84,44,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+/* 手机壳：桌面端居中呈现为「手机卡片」，移动端全屏 */
+#app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;
+  display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,.12);}
+
+/* ---------- 顶部标题栏 ---------- */
+.app-header{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(135deg,#c5683a 0%,#a8522c 100%);
+  color:#fff;padding:14px 18px 12px;
+  display:flex;align-items:center;gap:12px;
+}
+.brand-mark{
+  width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.16);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;
+}
+.brand-name{font-size:19px;font-weight:700;letter-spacing:1px;}
+.brand-sub{font-size:12px;opacity:.9;letter-spacing:1px;}
+.brand-badge{margin-left:auto;font-size:11px;background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.4);padding:3px 9px;border-radius:999px;white-space:nowrap;}
+
+/* ---------- 页面容器 ---------- */
+.page-container{flex:1;overflow:hidden;padding-bottom:70px;}
+.page{display:none;animation:fade .25s ease;}
+.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.page-pad{padding:14px 14px 20px;}
+
+/* ---------- 通用组件 ---------- */
+.section-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin:18px 2px 10px;}
+.section-title::before{content:"";width:4px;height:16px;background:var(--primary);border-radius:2px;}
+.section-title .more{margin-left:auto;font-size:12px;color:var(--muted);font-weight:400;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#f7e6d5;color:var(--primary-2);}
+
+/* ---------- 首页 ---------- */
+.hero{background:linear-gradient(160deg,#7a4a2a 0%,#a8522c 55%,#c5683a 100%);color:#fff;
+  border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.hero::after{content:"巷";position:absolute;right:-8px;bottom:-30px;font-size:150px;opacity:.08;font-weight:900;}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:2px;position:relative;z-index:1;}
+.hero .slogan{font-size:13px;opacity:.92;margin-top:6px;letter-spacing:1px;position:relative;z-index:1;}
+.hero .cta{position:relative;z-index:1;margin-top:16px;display:inline-block;background:#fff;color:var(--primary-2);
+  font-size:14px;font-weight:700;padding:9px 20px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.18);cursor:pointer;}
+
+.notice{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);}
+.notice-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);}
+.notice-item:last-child{border-bottom:none;}
+.notice-tag{flex:none;font-size:11px;font-weight:700;color:var(--primary-2);background:#f7e6d5;
+  padding:2px 7px;border-radius:6px;height:fit-content;margin-top:3px;}
+.notice-text{font-size:13px;color:var(--ink);}
+.notice-time{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.grid-entry{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.entry{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 6px;text-align:center;
+  box-shadow:var(--shadow);cursor:pointer;transition:transform .15s;}
+.entry:active{transform:scale(.95);}
+.entry .ico{font-size:26px;}
+.entry .nm{font-size:12px;font-weight:700;margin-top:6px;color:var(--ink);}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);}
+.stat .num{font-size:22px;font-weight:800;color:var(--primary);}
+.stat .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.banner{background:linear-gradient(135deg,#4d7c54,#3c6242);color:#fff;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);}
+.banner b{font-size:14px;}
+.banner p{font-size:12px;opacity:.92;margin-top:4px;}
+
+/* ---------- 服务页 ---------- */
+.seg{display:flex;background:#eaddc9;border-radius:10px;padding:3px;margin-bottom:12px;}
+.seg button{flex:1;border:none;background:transparent;font-size:13px;padding:8px;border-radius:8px;color:var(--muted);cursor:pointer;}
+.seg button.on{background:#fff;color:var(--primary-2);font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+
+.svc-list{display:flex;flex-direction:column;gap:10px;}
+.svc{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:13px 14px;box-shadow:var(--shadow);}
+.svc .ico{font-size:24px;width:44px;height:44px;background:#f7e6d5;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none;}
+.svc .info{flex:1;}
+.svc .nm{font-size:15px;font-weight:700;}
+.svc .ds{font-size:12px;color:var(--muted);}
+.svc .pr{font-size:12px;font-weight:700;color:var(--primary);white-space:nowrap;}
+.svc .tag{font-size:10px;padding:2px 7px;border-radius:6px;}
+.tag.base{background:#eaf3ea;color:var(--green);}
+.tag.plus{background:#f0e7d8;color:var(--amber);}
+
+.craft-list{display:flex;flex-direction:column;gap:10px;}
+.craft{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:13px 14px;box-shadow:var(--shadow);}
+.avatar{width:46px;height:46px;border-radius:50%;background:#eed9c6;color:var(--primary-2);font-size:18px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex:none;}
+.craft .nm{font-size:15px;font-weight:700;}
+.craft .sk{font-size:12px;color:var(--primary-2);font-weight:600;}
+.craft .in{font-size:12px;color:var(--muted);margin-top:2px;}
+.stars{color:#e0a03a;font-size:12px;margin-left:auto;white-space:nowrap;}
+
+.btn-primary{display:block;width:100%;border:none;background:linear-gradient(135deg,#c5683a,#a8522c);color:#fff;
+  font-size:16px;font-weight:700;padding:14px;border-radius:14px;cursor:pointer;box-shadow:var(--shadow);margin-top:16px;}
+.btn-primary:active{transform:scale(.98);}
+
+/* ---------- 邻里页 ---------- */
+.feed{display:flex;flex-direction:column;gap:10px;}
+.feed-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);}
+.feed-card .top{display:flex;align-items:center;gap:8px;}
+.feed-card .t{font-size:15px;font-weight:700;flex:1;}
+.feed-card .c{font-size:11px;color:#fff;background:var(--green);padding:2px 8px;border-radius:999px;flex:none;}
+.feed-card .c.help{background:var(--amber);}
+.feed-card .d{font-size:13px;color:var(--ink);margin-top:8px;}
+.feed-card .meta{font-size:11px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between;}
+.empty{text-align:center;color:var(--muted);padding:40px 0;font-size:13px;}
+
+/* ---------- 我的页 ---------- */
+.mine-head{background:linear-gradient(160deg,#7a4a2a,#c5683a);color:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow);}
+.mine-head .row{display:flex;align-items:center;gap:12px;}
+.mine-head .avatar{width:52px;height:52px;background:rgba(255,255,255,.2);}
+.mine-head .nm{font-size:18px;font-weight:800;}
+.mine-head .sub{font-size:12px;opacity:.9;}
+.info-rows{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.info-row{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:var(--shadow);}
+.info-row .k{flex:none;width:64px;font-size:13px;color:var(--muted);font-weight:700;}
+.info-row .v{font-size:13px;flex:1;}
+
+/* ---------- 底部导航 ---------- */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:30;
+  background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 0 env(safe-area-inset-bottom);}
+.tab{flex:1;text-align:center;cursor:pointer;color:var(--muted);font-size:11px;padding:4px 0;}
+.tab .ic{display:block;font-size:22px;line-height:1.2;}
+.tab.on{color:var(--primary);font-weight:700;}
+
+/* ---------- 弹窗 ---------- */
+.overlay{position:fixed;inset:0;background:rgba(30,18,10,.5);z-index:50;display:none;align-items:flex-end;justify-content:center;}
+.overlay.show{display:flex;}
+.sheet{width:100%;max-width:480px;background:var(--card);border-radius:18px 18px 0 0;padding:18px 16px 22px;
+  animation:up .25s ease;max-height:88vh;overflow-y:auto;position:relative;}
+@keyframes up{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+.sheet h3{font-size:17px;text-align:center;margin-bottom:14px;}
+.sheet .close{position:absolute;top:14px;right:16px;font-size:20px;color:var(--muted);cursor:pointer;}
+.f-item{margin-bottom:12px;}
+.f-item label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink);}
+.f-item input,.f-item select,.f-item textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+  font-size:14px;font-family:inherit;background:#fbf7f0;color:var(--ink);}
+.f-item textarea{min-height:72px;resize:vertical;}
+.f-item input:focus,.f-item select:focus,.f-item textarea:focus{outline:2px solid rgba(197,104,58,.35);border-color:var(--primary);}
+.req{color:var(--red);}
+
+/* ---------- 提示 toast ---------- */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(40,28,20,.92);color:#fff;
+  font-size:14px;padding:12px 22px;border-radius:10px;z-index:99;display:none;pointer-events:none;max-width:80%;text-align:center;}
+.toast.show{display:block;animation:fade .2s;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 顶部标题栏 -->
+  <header class="app-header">
+    <div class="brand-mark">🛠️</div>
+    <div>
+      <div class="brand-name">巷匠</div>
+      <div class="brand-sub">手艺进社区 · 互助传温情</div>
+    </div>
+    <div class="brand-badge">公益 · 平价</div>
+  </header>
+
+  <!-- 页面 -->
+  <main class="page-container">
+
+    <!-- ============ 首页 ============ -->
+    <section id="page-home" class="page active">
+      <div class="page-pad">
+        <div class="hero">
+          <h1>巷匠</h1>
+          <div class="slogan">让手艺回归社区，让温暖回归邻里</div>
+          <a class="cta" onclick="goService()">立即预约维修 →</a>
+        </div>
+
+        <div class="section-title">公告公示</div>
+        <div class="notice" id="noticeList"></div>
+
+        <div class="section-title">便民服务</div>
+        <div class="grid-entry">
+          <div class="entry" onclick="goService()"><span class="ico">🛠️</span><div class="nm">维修预约</div></div>
+          <div class="entry" onclick="goNeighbor('item')"><span class="ico">🔄</span><div class="nm">旧物流转</div></div>
+          <div class="entry" onclick="goNeighbor('help')"><span class="ico">🤝</span><div class="nm">邻里互助</div></div>
+          <div class="entry" onclick="goMine()"><span class="ico">🏠</span><div class="nm">便民驿站</div></div>
+        </div>
+
+        <div class="section-title">项目落地数据<span class="more">来源：社区实地调研</span></div>
+        <div class="stats">
+          <div class="stat"><div class="num">386</div><div class="lbl">有效居民问卷</div></div>
+          <div class="stat"><div class="num">82%</div><div class="lbl">曾遇小件维修困境</div></div>
+          <div class="stat"><div class="num">89%</div><div class="lbl">支持小区固定站点</div></div>
+          <div class="stat"><div class="num">21名</div><div class="lbl">手艺人深度访谈</div></div>
+        </div>
+
+        <div class="section-title">服务承诺</div>
+        <div class="banner">
+          <b>「公益 + 商业」双层运营</b>
+          <p>基础维修平价透明、困难群体减免；正规服务商增值服务按需精准推送，不强制、不扰民。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 服务页 ============ -->
+    <section id="page-service" class="page">
+      <div class="page-pad">
+        <div class="seg">
+          <button class="on" data-seg="base" onclick="setSeg('base',this)">基础便民服务</button>
+          <button data-seg="plus" onclick="setSeg('plus',this)">增值服务</button>
+        </div>
+        <div class="svc-list" id="svcList"></div>
+
+        <div class="section-title">老手艺人们<span class="more">驻点轮值 · 可追溯</span></div>
+        <div class="craft-list" id="craftList"></div>
+
+        <button class="btn-primary" onclick="openBook()">🛠️ 预约维修</button>
+      </div>
+    </section>
+
+    <!-- ============ 邻里页 ============ -->
+    <section id="page-neighbor" class="page">
+      <div class="page-pad">
+        <div class="seg">
+          <button class="on" data-seg="item" onclick="setNei('item',this)">旧物流转</button>
+          <button data-seg="help" onclick="setNei('help',this)">邻里互助</button>
+        </div>
+        <div class="feed" id="feedList"></div>
+        <button class="btn-primary" id="publishBtn" onclick="openPublish()">发布信息</button>
+        <p style="text-align:center;color:var(--muted);font-size:11px;margin-top:10px;">
+          旧物流转为公益信息展示，不介入交易、不收费；邻里互助仅限低风险任务，高危需求已屏蔽。
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 我的页 ============ -->
+    <section id="page-mine" class="page">
+      <div class="page-pad">
+        <div class="mine-head">
+          <div class="row">
+            <div class="avatar">巷</div>
+            <div>
+              <div class="nm">巷匠 · 便民驿站</div>
+              <div class="sub">河北公安警察职业学院 · 高职组 · 社会服务类</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">关于项目</div>
+        <div class="card" style="font-size:13px;color:var(--ink);">
+          巷匠创新打造「物业 + 老手艺人」社区服务模式，建设<b>巷匠便民驿站</b>并配套本小程序，
+          提供维修预约、旧物流转、邻里互助等服务。以低价维修和困难群体减免积累口碑，
+          通过物业便民服务、正规服务商增值合作实现可持续运营。
+        </div>
+
+        <div class="section-title">项目信息</div>
+        <div class="info-rows">
+          <div class="info-row"><span class="k">项目名称</span><span class="v">巷匠——手艺进社区，互助传温情</span></div>
+          <div class="info-row"><span class="k">领衔人</span><span class="v">韩佳利（经济犯罪侦查专业）</span></div>
+          <div class="info-row"><span class="k">申报学校</span><span class="v">河北公安警察职业学院</span></div>
+          <div class="info-row"><span class="k">项目组别</span><span class="v">高职组 · 社会服务类</span></div>
+          <div class="info-row"><span class="k">联系电话</span><span class="v">18231923287</span></div>
+          <div class="info-row"><span class="k">电子邮箱</span><span class="v">3215788474@qq.com</span></div>
+          <div class="info-row"><span class="k">通信地址</span><span class="v">石家庄市栾城区太行大街899号</span></div>
+        </div>
+
+        <div class="section-title">我的预约 <span class="more">本机保存</span></div>
+        <div class="feed" id="myBookList"></div>
+
+        <div class="section-title">我的发布 <span class="more">本机保存</span></div>
+        <div class="feed" id="myPubList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar">
+    <div class="tab on" data-tab="home" onclick="switchTab('home')"><span class="ic">🏠</span>首页</div>
+    <div class="tab" data-tab="service" onclick="switchTab('service')"><span class="ic">🛠️</span>服务</div>
+    <div class="tab" data-tab="neighbor" onclick="switchTab('neighbor')"><span class="ic">🤝</span>邻里</div>
+    <div class="tab" data-tab="mine" onclick="switchTab('mine')"><span class="ic">👤</span>我的</div>
+  </nav>
+</div>
+
+<!-- 弹窗（动态表单） -->
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   数据（原型演示数据，均取自申报书与社区调研）
+   ============================================================ */
+const DATA = {
+  announcements: [
+    { tag:"驻点排班", text:"本周巷匠便民驿站驻点排班已公示：周六 / 周日 9:00—16:00，详见驿站公告栏。", time:"今天" },
+    { tag:"惠民政策", text:"独居老人、困难群体维修享受减免政策，请到驿站登记备案。", time:"昨天" },
+    { tag:"公益公告", text:"旧物流转为平台公益信息展示，不介入交易、不收取任何费用。", time:"3天前" },
+    { tag:"安全提示", text:"邻里互助仅限低风险、安全可控任务，高危需求已由后台屏蔽。", time:"1周前" },
+  ],
+  services: [
+    { icon:"🔪", name:"磨刀剪", ds:"菜刀、剪刀开刃抛光", price:"平价透明", type:"base" },
+    { icon:"🧵", name:"缝补", ds:"衣物开线、修补、改裤脚", price:"平价透明", type:"base" },
+    { icon:"☂️", name:"修伞", ds:"伞骨、伞面维修", price:"平价透明", type:"base" },
+    { icon:"✂️", name:"修拉链", ds:"衣裤箱包拉链更换", price:"平价透明", type:"base" },
+    { icon:"🔧", name:"小物件维修", ds:"家用小件日常维修", price:"平价透明", type:"base" },
+    { icon:"🧼", name:"家电清洗", ds:"正规服务商上门清洗", price:"市场公允价", type:"plus" },
+    { icon:"🚿", name:"管道疏通", ds:"正规服务商上门疏通", price:"市场公允价", type:"plus" },
+    { icon:"🛠️", name:"深度维保", ds:"家电深度保养维护", price:"市场公允价", type:"plus" },
+  ],
+  craftsmen: [
+    { name:"王师傅", skill:"磨刀剪", exp:"40年手艺", stars:5.0, intro:"刀剪开刃快而稳，做事踏实。" },
+    { name:"李阿姨", skill:"缝补", exp:"35年手艺", stars:5.0, intro:"针脚细密，改裤脚、补开线一把好手。" },
+    { name:"张师傅", skill:"修伞 / 拉链", exp:"28年手艺", stars:4.9, intro:"小件修复经验丰富，随到随修。" },
+    { name:"赵师傅", skill:"小物件维修", exp:"22年手艺", stars:4.9, intro:"家用小件维修，收费公道。" },
+  ],
+  items: [
+    { title:"八成新儿童自行车", cat:"旧物流转", desc:"孩子长高用不上了，八成新，可正常骑行。", user:"张女士", time:"2小时前" },
+    { title:"闲置电饭煲", cat:"旧物流转", desc:"3L 电饭煲，功能正常，免费送给有需要的人。", user:"刘先生", time:"5小时前" },
+    { title:"旧书一批", cat:"旧物流转", desc:"儿童读物、小说约 20 本，欢迎取阅。", user:"陈阿姨", time:"1天前" },
+    { title:"可折叠婴儿推车", cat:"旧物流转", desc:"七成新，干净整洁，可正常使用。", user:"王女士", time:"2天前" },
+  ],
+  helps: [
+    { title:"帮独居老人取快递", cat:"邻里互助", desc:"3 号楼独居老人腿脚不便，希望有人帮忙代取快递（已核实低风险）。", user:"物业 · 王主任", time:"1小时前" },
+    { title:"帮搬重物上楼", cat:"邻里互助", desc:"5 号楼居民搬家，需要两人帮忙搬家具上楼。", user:"李师傅", time:"3小时前" },
+    { title:"教老人用智能手机", cat:"邻里互助", desc:"希望有年轻人每周教 1 次手机基础操作。", user:"赵奶奶", time:"昨天" },
+  ],
+};
+
+const LS_KEY = { book:"xj_book", pub:"xj_pub" };
+const loadLS = (k) => { try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } };
+const saveLS = (k,v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+
+/* ---------- 工具 ---------- */
+const $ = (s)=>document.querySelector(s);
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("show"), 1800);
+}
+function nowStr(){
+  const d=new Date(), p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/* ---------- 导航 ---------- */
+const TABS = ["home","service","neighbor","mine"];
+function switchTab(name){
+  TABS.forEach(t=>{
+    $("#page-"+t).classList.toggle("active", t===name);
+    document.querySelector(`.tab[data-tab="${t}"]`).classList.toggle("on", t===name);
+  });
+  if(name==="mine") renderMine();
+  if(name==="service") renderSvc();
+  window.scrollTo(0,0);
+}
+function goService(){ switchTab("service"); }
+function goMine(){ switchTab("mine"); }
+function goNeighbor(seg){ setNei(seg); switchTab("neighbor"); }
+
+/* ---------- 首页渲染 ---------- */
+function renderNotice(){
+  $("#noticeList").innerHTML = DATA.announcements.map(a=>`
+    <div class="notice-item">
+      <span class="notice-tag">${esc(a.tag)}</span>
+      <div><div class="notice-text">${esc(a.text)}</div><div class="notice-time">${esc(a.time)}</div></div>
+    </div>`).join("");
+}
+
+/* ---------- 服务页渲染 ---------- */
+let curSeg = "base";
+function setSeg(seg, btn){
+  curSeg = seg;
+  document.querySelectorAll("#page-service .seg button").forEach(b=>b.classList.toggle("on", b===btn));
+  renderSvc();
+}
+function renderSvc(){
+  const list = DATA.services.filter(s=>s.type===curSeg);
+  $("#svcList").innerHTML = list.map(s=>`
+    <div class="svc">
+      <div class="ico">${s.icon}</div>
+      <div class="info"><div class="nm">${esc(s.name)}</div><div class="ds">${esc(s.ds)}</div></div>
+      <span class="tag ${s.type==='base'?'base':'plus'}">${s.type==='base'?'基础服务':'增值服务'}</span>
+      <span class="pr">${esc(s.price)}</span>
+    </div>`).join("");
+  $("#craftList").innerHTML = DATA.craftsmen.map(c=>`
+    <div class="craft">
+      <div class="avatar">${esc(c.name[0])}</div>
+      <div>
+        <div class="nm">${esc(c.name)}</div>
+        <div class="sk">${esc(c.skill)} · ${esc(c.exp)}</div>
+        <div class="in">${esc(c.intro)}</div>
+      </div>
+      <span class="stars">★ ${c.stars}</span>
+    </div>`).join("");
+}
+
+/* ---------- 邻里页 ---------- */
+let curNei = "item";
+function setNei(seg, btn){
+  curNei = seg;
+  document.querySelectorAll("#page-neighbor .seg button").forEach(b=>b.classList.toggle("on", b.dataset.seg===seg));
+  renderFeed();
+}
+function renderFeed(){
+  const arr = curNei==="item" ? DATA.items : DATA.helps;
+  const btn = $("#publishBtn");
+  btn.textContent = curNei==="item" ? "发布闲置物品" : "发起邻里互助";
+  if(arr.length===0){
+    $("#feedList").innerHTML = `<div class="empty">暂无信息，点击下方按钮发布第一条吧～</div>`;
+    return;
+  }
+  $("#feedList").innerHTML = arr.map(x=>`
+    <div class="feed-card">
+      <div class="top"><div class="t">${esc(x.title)}</div><span class="c ${x.cat==='邻里互助'?'help':''}">${esc(x.cat)}</span></div>
+      <div class="d">${esc(x.desc)}</div>
+      <div class="meta"><span>${esc(x.user)}</span><span>${esc(x.time)}</span></div>
+    </div>`).join("");
+}
+
+/* ---------- 我的页 ---------- */
+function renderMine(){
+  const books = loadLS(LS_KEY.book);
+  const pubs = loadLS(LS_KEY.pub);
+  $("#myBookList").innerHTML = books.length ? books.slice().reverse().map(b=>`
+    <div class="feed-card">
+      <div class="top"><div class="t">${esc(b.service)}</div><span class="c">已预约</span></div>
+      <div class="d">${esc(b.name)} · ${esc(b.addr)} · ${esc(b.time)}</div>
+      <div class="meta"><span>${esc(b.phone)}</span><span>${esc(b.at)}</span></div>
+    </div>`).join("") : `<div class="empty">还没有预约记录</div>`;
+  $("#myPubList").innerHTML = pubs.length ? pubs.slice().reverse().map(p=>`
+    <div class="feed-card">
+      <div class="top"><div class="t">${esc(p.title)}</div><span class="c ${p.kind==='help'?'help':''}">${p.kind==='help'?'邻里互助':'旧物流转'}</span></div>
+      <div class="d">${esc(p.desc)}</div>
+      <div class="meta"><span>${esc(p.contact)}</span><span>${esc(p.at)}</span></div>
+    </div>`).join("") : `<div class="empty">还没有发布记录</div>`;
+}
+
+/* ---------- 弹窗 ---------- */
+function openOverlay(html){
+  $("#sheet").innerHTML = `<span class="close" onclick="closeOverlay()">×</span>` + html;
+  $("#overlay").classList.add("show");
+}
+function closeOverlay(){ $("#overlay").classList.remove("show"); }
+$("#overlay").addEventListener("click", e=>{ if(e.target.id==="overlay") closeOverlay(); });
+
+/* 预约维修 */
+function openBook(){
+  const opts = DATA.services.map(s=>`<option>${s.name}</option>`).join("");
+  openOverlay(`
+    <h3>🛠️ 预约维修</h3>
+    <div class="f-item"><label>服务项目 <span class="req">*</span></label>
+      <select id="f_service">${opts}</select></div>
+    <div class="f-item"><label>姓名 <span class="req">*</span></label>
+      <input id="f_name" placeholder="您的称呼" /></div>
+    <div class="f-item"><label>联系电话 <span class="req">*</span></label>
+      <input id="f_phone" type="tel" placeholder="方便联系您的手机号" /></div>
+    <div class="f-item"><label>小区 / 楼栋 <span class="req">*</span></label>
+      <input id="f_addr" placeholder="例如：裕华区××小区 3 号楼" /></div>
+    <div class="f-item"><label>预约时间 <span class="req">*</span></label>
+      <input id="f_time" type="datetime-local" /></div>
+    <div class="f-item"><label>备注</label>
+      <textarea id="f_note" placeholder="需要说明的情况（如困难群体减免申请）"></textarea></div>
+    <button class="btn-primary" onclick="submitBook()">提交预约</button>`);
+}
+function submitBook(){
+  const v = id=>$(id).value.trim();
+  const service=v("#f_service"), name=v("#f_name"), phone=v("#f_phone"), addr=v("#f_addr"), time=v("#f_time");
+  if(!name || !phone || !addr || !time){ toast("请填写带 * 的必填项"); return; }
+  const list = loadLS(LS_KEY.book);
+  list.push({ service, name, phone, addr, time, note:v("#f_note"), at:nowStr() });
+  saveLS(LS_KEY.book, list);
+  closeOverlay(); toast("预约提交成功，驿站将尽快与您联系 ✅");
+}
+
+/* 发布信息 */
+function openPublish(){
+  const isHelp = curNei==="help";
+  openOverlay(`
+    <h3>${isHelp?"🤝 发起邻里互助":"🔄 发布闲置物品"}</h3>
+    <div class="f-item"><label>标题 <span class="req">*</span></label>
+      <input id="p_title" placeholder="${isHelp?"例如：帮老人取快递":"例如：闲置电饭煲"}" /></div>
+    <div class="f-item"><label>详细描述 <span class="req">*</span></label>
+      <textarea id="p_desc" placeholder="请描述具体情况，便于邻里对接"></textarea></div>
+    <div class="f-item"><label>联系人 <span class="req">*</span></label>
+      <input id="p_contact" placeholder="您的称呼" /></div>
+    <button class="btn-primary" onclick="submitPublish(${isHelp})">确认发布</button>`);
+}
+function submitPublish(isHelp){
+  const v = id=>$(id).value.trim();
+  const title=v("#p_title"), desc=v("#p_desc"), contact=v("#p_contact");
+  if(!title || !desc || !contact){ toast("请填写带 * 的必填项"); return; }
+  const rec = { title, desc, contact, kind:isHelp?"help":"item", at:nowStr(), time:"刚刚",
+    cat:isHelp?"邻里互助":"旧物流转", user:contact };
+  const pub = loadLS(LS_KEY.pub); pub.push({ title, desc, contact, kind:isHelp?"help":"item", at:nowStr() });
+  saveLS(LS_KEY.pub, pub);
+  (isHelp?DATA.helps:DATA.items).unshift(rec);
+  closeOverlay(); renderFeed(); toast("发布成功 ✅");
+}
+
+/* ---------- 初始化 ---------- */
+renderNotice();
+renderSvc();
+renderFeed();
+</script>
+</body>
+</html>
